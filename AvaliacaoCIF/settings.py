@@ -126,7 +126,7 @@ STATIC_URL = '/static/'
 
 
 CORS_ORIGIN_WHITELIST = (
-    'localhost:3000', 'https://avaliacaocif-app.herokuapp.com'
+    'localhost:3000', 'avaliacaocif-app.herokuapp.com'
 )
 CORS_EXPOSE_HEADERS = [
     "content-type", "x-custom-header", "content-range", "x-total-count"
