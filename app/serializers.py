@@ -67,10 +67,14 @@ class CategoriaRespostaSerializer(serializers.ModelSerializer):
         model = models.Categoria
         fields = '__all__'
 
-    def get_respostas(self, obj):
-        respostas = models.Resposta.objects.select_related(
-            'pergunta').filter(pergunta__categoria=obj.id)
-        return RespostaSerializer(respostas, many=True).data
+
+class AvaliacaoSimplesSerializer(serializers.ModelSerializer):
+    paciente = PessoaSerializer()
+    terapeuta = PessoaSerializer()
+
+    class Meta:
+        model = models.Avalicao
+        fields = '__all__'
 
 
 class AvaliacaoSerializer(serializers.ModelSerializer):

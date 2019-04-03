@@ -9,19 +9,24 @@ from . import models, serializers
 
 
 
-class CoreSetViewSet(viewsets.ModelViewSet):
+class CoreSetViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.CoreSet.objects.all()
     serializer_class = serializers.CoreSetSerializer
 
 
-class FonteInformacaoViewSet(viewsets.ModelViewSet):
+class FonteInformacaoViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.FonteInformacao.objects.all()
     serializer_class = serializers.FonteInformacaoSerializer
 
 
-class AvaliacaoViewSet(viewsets.ModelViewSet):
+class AvaliacaoViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Avalicao.objects.all()
     serializer_class = serializers.AvaliacaoSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return serializers.AvaliacaoSimplesSerializer
+        return self.serializer_class
 
 
 def tem_categoria_na_resposta(categoria_id, respostas):
