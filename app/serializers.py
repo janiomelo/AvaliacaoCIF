@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db.models import Q
 from . import models
 
 
@@ -59,7 +60,8 @@ class PessoaSerializer(serializers.ModelSerializer):
 
 
 class CategoriaRespostaSerializer(serializers.ModelSerializer):
-    respostas = serializers.SerializerMethodField()
+    respostas = serializers.ListField(
+        read_only=True, required=False, allow_empty=True, allow_null=True)
 
     class Meta:
         model = models.Categoria
@@ -82,6 +84,10 @@ class AvaliacaoSerializer(serializers.ModelSerializer):
 
     def get_categorias(self, obj):
         categorias = models.Categoria.objects.filter(coreSet=obj.coreSet)
+        for c in categorias:
+            r = models.Resposta.objects.select_related('pergunta')
+            r = r.filter(Q(avaliacao=obj.id) & Q(pergunta__categoria=c.id))
+            c.respostas = RespostaSerializer(r, many=True).data
         return CategoriaRespostaSerializer(categorias, many=True).data
 
 
