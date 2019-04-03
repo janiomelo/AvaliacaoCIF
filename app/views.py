@@ -55,9 +55,9 @@ def valida_avaliacao(avaliacao):
     except models.CoreSet.DoesNotExist:
         raise ValidationError("Core Set é obrigatório.")
 
-    respostas = avaliacao.get('respostas', [])
+    respostas = avaliacao.get('categorias', [])
 
-    if len(avaliacao.get('respostas')) == 0:
+    if len(avaliacao.get('categorias')) == 0:
         raise BadRequest(detail="Responda todas as perguntas.")
 
     for categoria in coreSet.categorias.all():
@@ -86,7 +86,7 @@ def gravar_avaliacao(avaliacao_dados):
     avaliacao = models.Avalicao.objects.create(
         paciente=paciente, terapeuta=terapeuta, coreSet=coreSet)
 
-    for c in avaliacao_dados['respostas']:
+    for c in avaliacao_dados['categorias']:
         for r in c['respostas']:
             pergunta = models.Pergunta.objects.get(pk=r['pergunta'])
             if r['fonteInformacao'] is None:
@@ -99,7 +99,7 @@ def gravar_avaliacao(avaliacao_dados):
 
             resposta = models.Resposta.objects.create(
                 avaliacao=avaliacao, fonteInformacao=fonte, pergunta=pergunta,
-                descricaoProblema='')
+                descricaoProblema=r['descricao'])
 
             for q in r['qualificadores']:
                 classificacao = models.Classificacao.objects.get(
@@ -116,21 +116,6 @@ def gravar_avaliacao(avaliacao_dados):
 @api_view(['POST'])
 @transaction.atomic
 def criar_avaliacao(request):
-    '''
-    {"respostas":
-        [{"categoria":1,"respostas":
-            [{"pergunta":1,"qualificadores":
-                    [{"qualificador":3,"classificacao":"5"},
-                    {"qualificador":2,"classificacao":"6"},
-                    {"qualificador":1,"classificacao":"3"}],
-            "fonteInformacao":null}]
-        },{"categoria":2,"respostas":
-            [{"pergunta":2,"qualificadores":[],"fonteInformacao":"4"}]
-        },{"categoria":3,"respostas":
-            [{"pergunta":3,"qualificadores":
-                    [{"qualificador":6,"classificacao":"4"}],
-            "fonteInformacao":null}]}]}}
-    '''
     if request.method == 'POST':
         valida_avaliacao(request.data)
         gravar_avaliacao(request.data)
