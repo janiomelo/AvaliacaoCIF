@@ -116,6 +116,7 @@ def gravar_avaliacao(avaliacao_dados):
                     resposta=resposta, classificacao=classificacao,
                     qualificador=qualificador
                 )
+    return avaliacao
 
 
 @api_view(['POST'])
@@ -123,6 +124,7 @@ def gravar_avaliacao(avaliacao_dados):
 def criar_avaliacao(request):
     if request.method == 'POST':
         valida_avaliacao(request.data)
-        gravar_avaliacao(request.data)
-        return Response({"message": "OK!", "data": request.data})
+        avaliacao = gravar_avaliacao(request.data)
+        data = serializers.AvaliacaoSerializer(avaliacao).data
+        return Response({"message": "OK!", "avaliacao": data})
     raise MethodNotAllowed
