@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class FonteInformacao(models.Model):
@@ -58,6 +59,10 @@ class Pergunta(models.Model):
 
 class Pessoa(models.Model):
     nome = models.CharField(max_length=100)
+    user = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.CASCADE, unique=True)
+    terapeuta = models.ForeignKey(
+        'Pessoa', null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.nome

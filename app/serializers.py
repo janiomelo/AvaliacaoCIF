@@ -1,6 +1,13 @@
 from rest_framework import serializers
 from django.db.models import Q
+from django.contrib.auth.models import User
 from . import models
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'is_staff']
 
 
 class ClassificacaoSerializer(serializers.ModelSerializer):

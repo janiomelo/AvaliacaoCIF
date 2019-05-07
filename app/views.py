@@ -1,27 +1,54 @@
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import (
     MethodNotAllowed, ValidationError, APIException)
 from django.db import transaction
+from rest_framework.permissions import IsAuthenticated
 from . import models, serializers
-
 
 
 class CoreSetViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.CoreSet.objects.all()
     serializer_class = serializers.CoreSetSerializer
+    permission_classes = (IsAuthenticated, )
 
 
 class FonteInformacaoViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.FonteInformacao.objects.all()
     serializer_class = serializers.FonteInformacaoSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class PacienteViewSet(viewsets.ModelViewSet):
+    queryset = models.Pessoa.objects.all()
+    serializer_class = serializers.PessoaSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        try:
+            terapeuta = models.Pessoa.objects.get(user=self.request.user.id)
+            return models.Pessoa.objects.filter(terapeuta=terapeuta.id)
+        except models.Pessoa.DoesNotExist:
+            raise BadRequest("Usuário não configurado.")
 
 
 class AvaliacaoViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Avalicao.objects.all()
     serializer_class = serializers.AvaliacaoSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        try:
+            pessoa = models.Pessoa.objects.get(user=self.request.user.id)
+            if self.request.user.is_staff:
+                f = {"terapeuta":pessoa.id}
+            else:
+                f = {"paciente": pessoa.id}
+            return models.Avalicao.objects.filter(**f)
+        except models.Pessoa.DoesNotExist:
+            raise BadRequest("Usuário não configurado.")
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -84,10 +111,17 @@ def valida_avaliacao(avaliacao):
                         quali.descricao, pergunta.titulo)
                 )
 
-def gravar_avaliacao(avaliacao_dados):
+def gravar_avaliacao(request):
+    avaliacao_dados = request.data
     coreSet = models.CoreSet.objects.get(pk=avaliacao_dados.get('coreSet'))
-    terapeuta = models.Pessoa.objects.get(pk=1)
-    paciente = models.Pessoa.objects.get(pk=2)
+    try:
+        terapeuta = models.Pessoa.objects.get(user=request.user.id)
+    except models.Pessoa.DoesNotExist:
+        raise BadRequest("Usuário não configurado.")
+
+    if not avaliacao_dados['paciente']:
+        raise ValidationError("Necessário informar o paciente.")
+    paciente = models.Pessoa.objects.get(pk=avaliacao_dados['paciente'])
     avaliacao = models.Avalicao.objects.create(
         paciente=paciente, terapeuta=terapeuta, coreSet=coreSet)
 
@@ -119,12 +153,19 @@ def gravar_avaliacao(avaliacao_dados):
     return avaliacao
 
 
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def usuario(request):
+    return Response(serializers.UserSerializer(request.user).data)
+
+
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 @transaction.atomic
 def criar_avaliacao(request):
     if request.method == 'POST':
         valida_avaliacao(request.data)
-        avaliacao = gravar_avaliacao(request.data)
+        avaliacao = gravar_avaliacao(request)
         data = serializers.AvaliacaoSerializer(avaliacao).data
         return Response({"message": "OK!", "avaliacao": data})
     raise MethodNotAllowed
