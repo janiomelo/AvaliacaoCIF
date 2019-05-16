@@ -18,6 +18,7 @@ class CoreSet(models.Model):
 
 class Classificacao(models.Model):
     nivel = models.IntegerField()
+    prefixo = models.CharField(max_length=2, null=True, blank=True)
     descricao = models.CharField(max_length=60)
 
     def __str__(self):
