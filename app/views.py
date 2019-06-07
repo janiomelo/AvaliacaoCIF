@@ -33,6 +33,10 @@ class PacienteViewSet(viewsets.ModelViewSet):
         except models.Pessoa.DoesNotExist:
             raise BadRequest("Usuário não configurado.")
 
+    def create(self, request, *args, **kwargs):
+        request.data['terapeuta'] = request.user.id
+        return super().create(request, *args, **kwargs)
+
 
 class AvaliacaoViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Avalicao.objects.all()
@@ -157,6 +161,15 @@ def gravar_avaliacao(request):
 @permission_classes((IsAuthenticated,))
 def usuario(request):
     return Response(serializers.UserSerializer(request.user).data)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def atualizar_usuario(request):
+    userSerial = serializers.UserSerializer(request.user, request.data)
+    userSerial.is_valid(True)
+    userSerial.save()
+    return Response(userSerial.data)
 
 
 @api_view(['POST'])

@@ -13,5 +13,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('avaliar/', views.criar_avaliacao),
     path('usuario/', views.usuario),
+    path('atualizar-usuario/', views.atualizar_usuario),
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
 ]

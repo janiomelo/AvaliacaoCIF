@@ -7,7 +7,7 @@ from . import models
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'is_staff']
+        fields = ['id', 'first_name', 'email', 'last_name', 'is_staff']
 
 
 class ClassificacaoSerializer(serializers.ModelSerializer):
