@@ -62,8 +62,19 @@ class Pessoa(models.Model):
     nome = models.CharField(max_length=100)
     user = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.CASCADE, unique=True)
+    cpf = models.CharField(max_length=11, null=True, blank=True)
+    sexo = models.CharField(max_length=10, null=True, blank=True)
+    nascimento = models.DateField(null=True, blank=True)
+    email = models.CharField(max_length=200, null=True, blank=True)
+    telefone = models.CharField(max_length=11, null=True, blank=True)
+    endereco = models.CharField(max_length=100,null=True, blank=True)
+    bairro = models.CharField(max_length=70, null=True, blank=True)
+    cidade = models.CharField(max_length=70, null=True, blank=True)
+    estado = models.CharField(max_length=2, null=True, blank=True)
+    cep = models.CharField(max_length=9, null=True, blank=True)
     terapeuta = models.ForeignKey(
         'Pessoa', null=True, blank=True, on_delete=models.CASCADE)
+    observacoes = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.nome

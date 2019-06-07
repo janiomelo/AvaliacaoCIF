@@ -63,7 +63,9 @@ class PerguntaSerializer(serializers.ModelSerializer):
 class PessoaSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Pessoa
-        fields = '__all__'
+        fields = ['id','nome','user','cpf','sexo', 'nascimento','endereco',
+        'bairro','cidade','estado','cep','terapeuta', 'observacoes', 'email',
+        'telefone']
 
 
 class CategoriaRespostaSerializer(serializers.ModelSerializer):
