@@ -4,7 +4,7 @@ dj-database-url==0.5.0
 Django==2.1.7
 django-cors-headers==2.5.2
 django-heroku==0.3.1
-djangorestframework==3.9.2
+djangorestframework==3.11.2
 gunicorn==19.9.0
 npyscreen==4.10.5
 peewee==3.5.0
